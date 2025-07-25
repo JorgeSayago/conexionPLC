@@ -1,6 +1,7 @@
 import time
 import snap7
 from snap7.util import set_int, set_bool, set_string
+from texto import imprimir  
 
 IP = "192.168.1.10"
 RACK = 0
@@ -55,6 +56,6 @@ set_bool(data_to_write, 258, 0, True)  # Byte 258, bit 0
 # Enviar los datos al DB
 plc.db_write(DB_NUMBER_WRITE, START_ADDRESS_WRITE, data_to_write)
 
-
+imprimir(plc,DB_NUMBER,START_ADDRESS , SIZE)
 
 time.sleep(15)
