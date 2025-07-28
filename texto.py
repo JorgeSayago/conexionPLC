@@ -1,6 +1,7 @@
 import csv
 import time
 
+# Funcion para imprimir la base de datos del PLC en un archivo.csv para guaras los dato enviados
 def imprimir(plc,DB_NUMBER,START_ADDRESS,SIZE):
     with open("registro.csv","w", newline="") as f:
         writer = csv.writer(f)
