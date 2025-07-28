@@ -3,6 +3,7 @@ from PIL import Image
 import pandas as pd
 import snap7
 from conecction.lectura import leer_datos
+from database.database import guardar_dato, obtener_registro
 
 # Mostrar logo arriba solo si existe
 try:
@@ -32,16 +33,16 @@ def main():
 
     if st.button("Leer datos del PLC"):
         nuevo = leer_datos(plc)
-        if "datos" not in st.session_state:
-            st.session_state.datos = []
-
-            st.session_state.datos.append(nuevo)
-            st.success("Datos leidos")
+        guardar_dato(nuevo["Producto"],nuevo["Valor"],nuevo["Estado"])
+        st.success("datos guardados en la base")
     
-    # mostrar en la tabla
-    if "datos" in st.session_state and st.session_state.datos:
-        df = pd.DataFrame(st.session_state.datos)
+    st.subheader("datos almacenados")
+    registros = obtener_registro()
+    if registros:
+        df = pd.DataFrame(registros)
         st.dataframe(df)
+    else:
+        st.info("no hay datos registrados aun")
 
 
 if __name__ == "__main__":

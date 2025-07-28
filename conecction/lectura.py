@@ -9,5 +9,5 @@ def leer_datos(plc, DB_NUMBER=2, START_ADRESS=0,SIZE=259):
     return{
         "Producto": product_name,
         "Valor": product_value,
-        "Estadp": product_status
+        "Estado": product_status
     }
