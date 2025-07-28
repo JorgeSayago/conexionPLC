@@ -3,7 +3,9 @@ from PIL import Image
 import pandas as pd
 import snap7
 from conecction.lectura import leer_datos
+from conecction.manager import PLCManager
 from database.database import guardar_dato, obtener_registro
+from page.login import mostrarLogin
 
 # Mostrar logo arriba solo si existe
 try:
@@ -27,13 +29,17 @@ def conectarPLC():
     return plc 
 
 def main():
+    if "usuario" not in st.session_state:
+        mostrarLogin()
+        return
+    
+    st.sidebar.success(f"Bienvenido, {st.session_state['usuario']}")
     st.title("Recoleccion de datos PLC")
 
-    plc = conectarPLC()
+    plc = PLCManager()
 
     if st.button("Leer datos del PLC"):
-        nuevo = leer_datos(plc)
-        guardar_dato(nuevo["Producto"],nuevo["Valor"],nuevo["Estado"])
+        nuevo = plc.leer_y_guardar()
         st.success("datos guardados en la base")
     
     st.subheader("datos almacenados")
