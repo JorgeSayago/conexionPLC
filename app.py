@@ -16,18 +16,6 @@ except FileNotFoundError:
 
 st.set_page_config(page_title="Dashboard PLC")
 
-# Parametros de conexion
-IP = "192.168.1.10"
-RACK = 0
-SLOT = 1
-
-# CREAR CONEXION SOLO UNA VEZ
-@st.cache_resource
-def conectarPLC():
-    plc = snap7.client.Client()
-    plc.connect(IP, RACK, SLOT)
-    return plc 
-
 def main():
     if "usuario" not in st.session_state:
         mostrarLogin()
@@ -37,6 +25,10 @@ def main():
     st.title("Recoleccion de datos PLC")
 
     plc = PLCManager()
+
+    st.subheader("Estado del PLC (bit de vida)")
+    estado = plc.leer_bit_vida()
+    st.info(estado)
 
     if st.button("Leer datos del PLC"):
         nuevo = plc.leer_y_guardar()
