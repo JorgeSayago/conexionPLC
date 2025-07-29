@@ -1,7 +1,9 @@
 import snap7
 from snap7.util import get_bool
+from snap7.util import set_bool
 from conecction.lectura import leer_datos
 from database.database import guardar_dato
+import time
 
 class PLCManager:
     def __init__(self, ip="192.168.1.10", rack=0,slot=1):
@@ -16,7 +18,7 @@ class PLCManager:
         guardar_dato(datos["Producto"], datos["Valor"],datos["Estado"])
         return datos
     
-    def leer_bit_vida(self, db=10, byte=0, bit=0, size=1):
+    def leer_bit_vida(self, db=3, byte=0, bit=0, size=258):
         try:
             db_data = self.client.db_read(db, byte, size)
             actual = get_bool(db_data, 0, bit)
@@ -33,4 +35,18 @@ class PLCManager:
 
         except Exception as e:
             return f"❌ Error al leer bit de vida: {e}"
+    
+    def enviar_bit_vida(self, paso,db=3,byte_index=258):
+        data_to_write = bytearray(259)
 
+        patrones = [
+            [True, False, False, False],
+            [False, True, False, False],
+            [False, False, True, False],
+            [False, False, False, True],            
+        ]
+
+        for i in range(4):
+            set_bool(data_to_write, byte_index, i, patrones[paso][i])
+        
+        self.client.db_write(db,0,data_to_write)

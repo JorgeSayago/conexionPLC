@@ -17,6 +17,10 @@ except FileNotFoundError:
 st.set_page_config(page_title="Dashboard PLC")
 
 def main():
+    if "paso_vida" not in st.session_state:
+        st.session_state.paso_vida = 0
+
+
     if "usuario" not in st.session_state:
         mostrarLogin()
         return
@@ -26,14 +30,17 @@ def main():
 
     plc = PLCManager()
 
-    st.subheader("Estado del PLC (bit de vida)")
-    estado = plc.leer_bit_vida()
-    st.info(estado)
+#    st.subheader("Estado del PLC (bit de vida)")
+#    estado = plc.leer_bit_vida()
+#    st.info(estado)
 
     if st.button("Leer datos del PLC"):
         nuevo = plc.leer_y_guardar()
-        st.success("datos guardados en la base")
-    
+#        st.success("datos guardados en la base")
+        plc.enviar_bit_vida(st.session_state.paso_vida)
+        st.session_state.paso_vida = (st.session_state.paso_vida + 1) % 4
+        st.success("✅ Datos guardados y bit de vida enviado")
+
     st.subheader("datos almacenados")
     registros = obtener_registro()
     if registros:
