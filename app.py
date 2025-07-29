@@ -6,6 +6,7 @@ from conecction.lectura import leer_datos
 from conecction.manager import PLCManager
 from database.database import guardar_dato, obtener_registro
 from page.login import mostrarLogin
+from page.receta import RecetaPage
 
 # Mostrar logo arriba solo si existe
 try:
@@ -29,6 +30,9 @@ def main():
     st.title("Recoleccion de datos PLC")
 
     plc = PLCManager()
+
+    recetaPage = RecetaPage()
+    recetaPage.motrar()
 
 #    st.subheader("Estado del PLC (bit de vida)")
 #    estado = plc.leer_bit_vida()
