@@ -11,8 +11,16 @@ class PLCManager:
         self.rack = rack
         self.slot = slot
         self.client = snap7.client.Client()
-        self.client.connect(self.ip,self.rack,self.slot)
-    
+        self.conectado = False
+
+        try:
+            self.client.connect(self.ip,self.rack,self.slot)
+            self.conectado = True
+        except RuntimeError as e:
+            print(" Error al conectar el PLC: {e}")
+        except Exception as e:
+            print("Error inesperado: {e}")
+
     def leer_y_guardar(self):
         datos = leer_datos(self.client)
         guardar_dato(datos["Producto"], datos["Valor"],datos["Estado"])
