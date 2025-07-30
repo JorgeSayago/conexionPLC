@@ -1,5 +1,7 @@
+import json
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from psycopg2.extras import Json
 
 # conexion
 def getConnection():
@@ -40,3 +42,14 @@ def obtener_receta():
     cur.close()
     conn.close()
     return data
+
+def guardar_receta(nombre, ingredientes, proceso):
+    conn = getConnection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO recetas (nombre, ingredientes, proceso)
+        VALUES (%s, %s, %s)
+    """,(nombre,Json(ingredientes),Json(proceso)) )
+    conn.commit()
+    cur.close()
+    conn.close()
