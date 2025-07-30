@@ -32,7 +32,7 @@ def main():
     plc = PLCManager()
 
     recetaPage = RecetaPage()
-    recetaPage.motrar()
+    recetaPage.mostrar()
 
 #    st.subheader("Estado del PLC (bit de vida)")
 #    estado = plc.leer_bit_vida()

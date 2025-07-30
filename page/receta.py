@@ -1,15 +1,17 @@
+import json
 import streamlit as st
+from database.database import obtener_receta
 
 class RecetaPage:
 
-    def motrar(self):
+    def mostrar(self):
         st.subheader("Recetas Industriales")
         opcion = st.radio("Que quieres hacer?",["Generar receta","Cargar receta"])
 
         if opcion == "Generar receta":
             self.generar()
         
-        elif opcion == "Cargar Receta":
+        elif opcion == "Cargar receta":
             self.cargar()
 
     def generar(self):
@@ -25,4 +27,17 @@ class RecetaPage:
             st.info("📝 Aquí se guardará la receta más adelante.")
 
     def cargar(self):
-        st.info("cargar recetas")
+        st.subheader("Cargar recetas existentes")
+
+        recetas = obtener_receta()
+        if recetas:
+            opciones = [r["nombre"] for r in recetas]
+            selection = st.selectbox("Seleccione una receta",opciones)
+            receta = next(r for r in recetas if r["nombre"] == selection)
+
+            st.markdown(" Ingredientes: ")
+            for ing, val in receta["ingredientes"].items():
+                st.write(f"- {ing.capitalize()}: {val} kg")
+        
+        else:
+            st.warning("no hay recetas guardadas")

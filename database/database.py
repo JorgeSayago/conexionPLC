@@ -31,3 +31,12 @@ def obtener_registro():
     cur.close()
     conn.close()
     return rows
+
+def obtener_receta():
+    conn = getConnection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM recetas ORDER BY id DESC")
+    data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return data
