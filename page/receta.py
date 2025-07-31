@@ -15,74 +15,77 @@ class RecetaPage:
             self.cargar()
 
     def generar(self):
-        st.subheader("🧪 Generar nueva receta")
-
-        nombre = st.text_input("Nombre de la nueva receta", key="nombre_receta")
-
-        st.markdown("### Ingredientes")
-        # inicializamos una lista de ingredientes si no existe
-        if "ingredientes" not in st.session_state:
-            st.session_state.ingredientes = []
-
-        # boton para agrear nuevo ingrediente
-        if st.button(" Agregar Ingrediente"):
-            st.session_state.ingredientes.append({"nombre": "","cantidad": 0.0})
-
-        # Mostrar inputs para cada ingrediente
-        for i, item in enumerate(st.session_state.ingredientes):
-            col1, col2, col3 = st.columns([4,2,1])
-            with col1:
-                nombre = st.text_input(f"Ingrediente {i+1}",value=item["nombre"], key=f"ing_nombre_{i}")
-            with col2:
-                cantidad = st.number_input(f"Cantidad (kg)", min_value=0.0, step=0.01, value=item["cantidad"], key=f"ing_cant_{i}")
-            with col3:
-                if st.button("🗑️", key=f"eliminar_{i}"):
-                    st.session_state.ingredientes.pop(i)
-                    st.experimental_rerun()
-            item["nombre"] = nombre
-            item["cantidad"] = cantidad
-
-        st.markdown("Proceso de Produccion")
-
-        if "procesos" not in st.session_state:
-            st.session_state.procesos = []
-
-        if st.button("Agregar Procesos"):
-            st.session_state.procesos.append({"nombre": "","tiempo": 0})
-
-        # mostrar imputs para cada proceso
-        for i, item in enumerate(st.session_state.procesos):
-            col1, col2, col3 = st.columns([4,2,1])
-            with col1:
-                nombre = st.text_input(f"proceso {i+1}",value=item["nombre"],key=f"proc_nombre_{i}")
-            with col2:
-                tiempo = st.number_input(f"tiempo (segundos)",min_value=0, step=1, value=item["tiempo"],key=f"proc_tiempo_{i}") 
-            with col3:   
-                if st.button("🗑️", key=f"eliminar_Proc{i}"):
-                    st.session_state.procesos.pop(i)
-                    st.experimental_rerun()
-            item["nombre"] = nombre
-            item["tiempo"] = tiempo
-
-        if st.button("Guardar receta"):
+        if st.session_state.get("guardar_receta"):
             ingredientes = {
                 item["nombre"]: item["cantidad"]
                 for item in st.session_state.ingredientes
                 if item["nombre"]
-            }
+                }
             proceso = [
                 {"etapa": item["nombre"], "tiempo": item["tiempo"]}
                 for item in st.session_state.procesos
                 if item["nombre"]
             ]
 
+            guardar_receta(st.session_state.nombre_receta, ingredientes, proceso)
+            st.success("✅ Receta guardada correctamente")
 
-            guardar_receta(nombre,ingredientes,proceso)
-            st.success("receta guardada correctamente")
-            # limpiar los formularios luego de guardarlos
-            st.session_state.ingredientes = []  
-            st.session_state.procesos = []  
+            # limpiar todo
+            st.session_state.ingredientes = []
+            st.session_state.procesos = []
             st.session_state.nombre_receta = ""
+            st.session_state.guardar_receta = False
+
+            st.rerun()  # 🔁 reiniciar ejecución sin errores
+
+        # ✅ Paso 2: construir el formulario
+        st.subheader("🧪 Generar nueva receta")
+
+        nombre = st.text_input("Nombre de la nueva receta", key="nombre_receta")
+
+        st.markdown("### Ingredientes")
+        if "ingredientes" not in st.session_state:
+            st.session_state.ingredientes = []
+
+        if st.button("Agregar Ingrediente"):
+            st.session_state.ingredientes.append({"nombre": "", "cantidad": 0.0})
+
+        for i, item in enumerate(st.session_state.ingredientes):
+            col1, col2, col3 = st.columns([4, 2, 1])
+            with col1:
+                nombre = st.text_input(f"Ingrediente {i+1}", value=item["nombre"], key=f"ing_nombre_{i}")
+            with col2:
+                cantidad = st.number_input("Cantidad (kg)", min_value=0.0, step=0.01, value=item["cantidad"], key=f"ing_cant_{i}")
+            with col3:
+                if st.button("🗑️", key=f"eliminar_{i}"):
+                    st.session_state.ingredientes.pop(i)
+                    st.rerun()
+            item["nombre"] = nombre
+            item["cantidad"] = cantidad
+
+        st.markdown("### Proceso de Producción")
+        if "procesos" not in st.session_state:
+            st.session_state.procesos = []
+
+        if st.button("Agregar Proceso"):
+            st.session_state.procesos.append({"nombre": "", "tiempo": 0})
+
+        for i, item in enumerate(st.session_state.procesos):
+            col1, col2, col3 = st.columns([4, 2, 1])
+            with col1:
+                nombre = st.text_input(f"Proceso {i+1}", value=item["nombre"], key=f"proc_nombre_{i}")
+            with col2:
+                tiempo = st.number_input("Tiempo (segundos)", min_value=0, step=1, value=item["tiempo"], key=f"proc_tiempo_{i}")
+            with col3:
+                if st.button("🗑️", key=f"eliminar_proc_{i}"):
+                    st.session_state.procesos.pop(i)
+                    st.rerun()
+            item["nombre"] = nombre
+            item["tiempo"] = tiempo
+
+        # ✅ Botón final que solo activa la bandera
+        if st.button("Guardar receta"):
+            st.session_state.guardar_receta = True
 
     def cargar(self):
         st.subheader("Cargar recetas existentes")
