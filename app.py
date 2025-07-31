@@ -7,6 +7,7 @@ from conecction.manager import PLCManager
 from database.database import guardar_dato, obtener_registro
 from page.login import mostrarLogin
 from page.receta import RecetaPage
+from page.ingredientes import mostrar_ingredientes
 
 # Mostrar logo arriba solo si existe
 try:
@@ -27,31 +28,49 @@ def main():
         return
     
     st.sidebar.success(f"Bienvenido, {st.session_state['usuario']}")
-    st.title("Recoleccion de datos PLC")
 
-    plc = PLCManager()
+    # Navegación
+    pagina = st.sidebar.radio("Menú", ["Dashboard", "Recetas", "Ingredientes"])
 
-    recetaPage = RecetaPage()
-    recetaPage.mostrar()
+    if pagina == "Dashboard":
+        st.title("Recoleccion de datos PLC")
+        plc = PLCManager()
+
+        registros = []  # ← Asignamos lista vacía por defecto
+
+        if st.button("Leer datos del PLC"):
+            nuevo = plc.leer_y_guardar()
+            plc.enviar_bit_vida(st.session_state.paso_vida)
+            st.session_state.paso_vida = (st.session_state.paso_vida + 1) % 4
+            st.success("✅ Datos guardados y bit de vida enviado")
+            registros = obtener_registro()  # ← solo si hace clic
+
+        st.subheader("datos almacenados")
+        if registros:
+            df = pd.DataFrame(registros)
+            st.dataframe(df)
+        else:
+            st.info("no hay datos registrados aun")
+        
+
+    elif pagina == "Recetas":
+        recetaPage = RecetaPage()
+        recetaPage.mostrar()
+
+    elif pagina == "Ingredientes":
+        mostrar_ingredientes()
+
+    
+
+
+#    recetaPage = RecetaPage()
+#    recetaPage.mostrar()
 
 #    st.subheader("Estado del PLC (bit de vida)")
 #    estado = plc.leer_bit_vida()
 #    st.info(estado)
 
-    if st.button("Leer datos del PLC"):
-        nuevo = plc.leer_y_guardar()
-#        st.success("datos guardados en la base")
-        plc.enviar_bit_vida(st.session_state.paso_vida)
-        st.session_state.paso_vida = (st.session_state.paso_vida + 1) % 4
-        st.success("✅ Datos guardados y bit de vida enviado")
 
-    st.subheader("datos almacenados")
-    registros = obtener_registro()
-    if registros:
-        df = pd.DataFrame(registros)
-        st.dataframe(df)
-    else:
-        st.info("no hay datos registrados aun")
 
 
 if __name__ == "__main__":
