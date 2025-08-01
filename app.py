@@ -8,6 +8,7 @@ from database.database import guardar_dato, obtener_registro
 from page.login import mostrarLogin
 from page.receta import RecetaPage
 from page.ingredientes import mostrar_ingredientes
+from page.reporteReceta import mostrarReceta
 
 # Mostrar logo arriba solo si existe
 try:
@@ -30,7 +31,7 @@ def main():
     st.sidebar.success(f"Bienvenido, {st.session_state['usuario']}")
 
     # Navegación
-    pagina = st.sidebar.radio("Menú", ["Dashboard", "Recetas", "Ingredientes"])
+    pagina = st.sidebar.radio("Menú", ["Dashboard", "Recetas", "Ingredientes","Reporte Recetas"])
 
     if pagina == "Dashboard":
         st.title("Recoleccion de datos PLC")
@@ -59,6 +60,9 @@ def main():
 
     elif pagina == "Ingredientes":
         mostrar_ingredientes()
+    
+    elif pagina == "Reporte Recetas":
+        mostrarReceta()
 
     
 
