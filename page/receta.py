@@ -1,6 +1,7 @@
 import json
 import streamlit as st
-from database.database import obtener_receta, guardar_receta
+from database.database import obtener_receta, guardar_receta, obtener_ingrediente
+
 
 class RecetaPage:
 
@@ -41,19 +42,23 @@ class RecetaPage:
         # ✅ Paso 2: construir el formulario
         st.subheader("🧪 Generar nueva receta")
 
-        nombre = st.text_input("Nombre de la nueva receta", key="nombre_receta")
-
-        st.markdown("### Ingredientes")
+        #  INICIALIZAR PRIMERO
         if "ingredientes" not in st.session_state:
             st.session_state.ingredientes = []
+        if "procesos" not in st.session_state:
+            st.session_state.procesos = []
 
-        if st.button("Agregar Ingrediente"):
-            st.session_state.ingredientes.append({"nombre": "", "cantidad": 0.0})
+        ingredientes_disponibles = obtener_ingrediente()
+        opciones_ingredientes = [i["nombre"] for i in ingredientes_disponibles]
 
-        for i, item in enumerate(st.session_state.ingredientes):
+        st.markdown("### Ingredientes")
+
+        nombre = st.text_input("Nombre de la nueva receta", key="nombre_receta")
+
+        for i,item in enumerate(st.session_state.ingredientes):
             col1, col2, col3 = st.columns([4, 2, 1])
             with col1:
-                nombre = st.text_input(f"Ingrediente {i+1}", value=item["nombre"], key=f"ing_nombre_{i}")
+                nombre = st.selectbox(f"Ingrediente {i+1}",opciones_ingredientes,index=opciones_ingredientes.index(item["nombre"])if item["nombre"] in opciones_ingredientes else 0, key=f"ing_nombre_{i}")
             with col2:
                 cantidad = st.number_input("Cantidad (kg)", min_value=0.0, step=0.01, value=item["cantidad"], key=f"ing_cant_{i}")
             with col3:
@@ -61,7 +66,10 @@ class RecetaPage:
                     st.session_state.ingredientes.pop(i)
                     st.rerun()
             item["nombre"] = nombre
-            item["cantidad"] = cantidad
+            item["cantidad"]=cantidad      
+
+        if st.button("Agregar Ingrediente"):
+            st.session_state.ingredientes.append({"nombre": "", "cantidad": 0.0})
 
         st.markdown("### Proceso de Producción")
         if "procesos" not in st.session_state:
