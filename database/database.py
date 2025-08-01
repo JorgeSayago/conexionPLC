@@ -53,3 +53,28 @@ def guardar_receta(nombre, ingredientes, proceso):
     conn.commit()
     cur.close()
     conn.close()
+
+def obtener_ingrediente():
+    conn = getConnection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT i.codigo, i.nombre, c.nombre AS categoria
+        FROM ingredientes i
+        JOIN categorias_ingredientes c ON i.categoria_id = c.id
+        ORDER BY i.nombre
+    """)
+    data = cur.fetchall()
+    cur.close()
+    conn.close()
+    return data
+
+def guardar_ingrediente(codigo,nombre,categoria_id):
+    conn = getConnection()
+    cur = conn.cursor()
+    cur.execute(""" 
+        INSERT INTO ingredientes (codigo, nombre, categoria_id)
+        VALUES (%s, %s, %s)
+        """,(codigo.strip(), nombre.strip(),categoria_id))
+    conn.commit()
+    cur.close()
+    conn.close()

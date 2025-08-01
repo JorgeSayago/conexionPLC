@@ -1,5 +1,5 @@
 import streamlit as st
-from database.database import getConnection
+from database.database import getConnection , guardar_ingrediente , obtener_ingrediente
 import psycopg2.extras
 
 def mostrar_ingredientes():
@@ -16,33 +16,20 @@ def mostrar_ingredientes():
     categoria_seleccionada = st.selectbox("Categoria", categoria_opciones)
 
     if st.button("Registrar ingrediente"):
-        categoria_id = next(c["id"] for c in categorias if c["nombre"])
+        if not codigo or not nombre:
+            st.warning(" Por favor complete todos los campos")
+        else:
+            try:
+                categoria_id = next(c["id"] for c in categorias if c["nombre"] == categoria_seleccionada)
+                guardar_ingrediente(codigo,nombre,categoria_id)
+                st.success("ingrediente guardado correctamente")
+                st.session_state.clear()
+            except Exception as e:
+                st.error(f"Error al guardar: {e}")
 
-        try:
-            cur.execute(""" 
-                INSERT INTO ingredientes (codigo, nombre, categoria_id)
-                VALUES (%s, %s, %s)
-                """,(codigo.strip(), nombre.strip(),categoria_id()))
-        except Exception as e:
-            st.error(f"Error al registrar: {e}")
-        finally:
-            cur.close()
-            conn.close()
-    
     st.markdown("---")
     st.subheader("ingrediente existente")
-    conn = getConnection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("""
-        SELECT i.codigo, i.nombre, c.nombre AS categoria
-        FROM ingredientes i
-        JOIN categorias_ingredientes c ON i.categoria_id = c.id
-        ORDER BY i.nombre
-    """)
-    datos = cur.fetchall()
-    cur.close()
-    conn.close()
-
+    datos = obtener_ingrediente()
     if datos:
         st.dataframe(datos)
     else:
